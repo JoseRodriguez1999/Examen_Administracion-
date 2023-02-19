@@ -1,0 +1,291 @@
+Jose Alberto Rodriguez Perdomo_ 618111030
+
+archivo .yml
+version: '3.5'
+services:
+  sqlserver: 
+    image: mcr.microsoft.com/mssql/server:2019-CU18-ubuntu-20.04
+    ports:
+      - 1433:1433
+    environment:
+      - MSSQL_SA_PASSWORD=C0ntrol1*
+      - ACCEPT_EULA=
+      - MASQL_PID=Developer
+    ##docker exec -it 458 bash
+    ##volumes:
+
+  mysql:
+    image: mysql:8.0.32
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=C0ntrol1*
+  
+  postgreSQL:
+    image: postgres:15.1
+    ports:
+      - 8080:8080
+    environment:
+      POSTGRES_PASSWORD: C0ntrol1*
+      
+      una vez creada la carpeta 
+      docker compose build
+      
+      Luego para levantar el servidor 
+      docker compose up
+      
+      Bd de examen con las normalizaciones realizadas:
+      use master
+go
+create database Examen_Mercado
+go
+use Examen_Mercadito
+go
+
+create table Inf_Cliente (
+	IdCliente int primary key not null,
+	Nombre varchar(MAX)not null,
+	IdTipo int not null,
+	Celular int not null,
+);
+
+Insert Into Inf_Cliente(IdCliente,Nombre,IdTipo,Celular)
+values(1,'Juan Perez',1,212321),
+       (2,'Juan Perez',2,223721),
+	   (3,'Juan Perez',3,246521),
+	   (4,'Juan Perez',4,246561),
+	   (5,'Juan Perez',5,246351),
+	   (6,'Juan Perez',6,2466531),
+	   (7,'Juan Perez',7,243631),
+	   (8,'Juan Perez',8,246731),
+	   (9,'Juan Perez',9,2466251),
+	   (10,'Juan Perez',10,279921)
+
+create table C_Cliente (
+	IdTipo int primary key not null,
+	TipoCliente varchar(MAX)not null,
+	IdCliente int not null,
+	foreign key (IdCliente) references Inf_Cliente(IdCliente)
+);
+
+Insert into C_Cliente(IdTipo,TipoCliente,IdCliente)
+values (1,'Frecuente',1),
+       (2,'No Frecuente',2),
+	   (3,'Frecuente',3),
+	   (4,'Frecuente',4),
+	   (5,'Frecuente',5),
+	   (6,'No Frecuente',6),
+	   (7,'Frecuente',7),
+	   (8,'No frecuente',8),
+	   (9,'Frecuente',9),
+	   (10,'Frecueente',10)
+
+create table Compras (
+	IdCompras int primary key not null,
+	IdCliente int not null,
+	IdTipo int not null,
+	ComprasRealizadas int not null,
+	foreign key (IdCliente) references Inf_Cliente(IdCliente),
+	foreign key (IdTipo) references C_Cliente(IdTipo)
+);
+Insert into Compras(IdCompras,IdCliente,IdTipo,ComprasRealizadas)
+values (1,1,1,10),
+       (2,2,2,5),
+	   (3,3,3,8),
+	   (4,4,4,25),
+	   (5,5,5,50),
+	   (6,6,6,12),
+	   (7,7,7,40),
+	   (8,8,8,55),
+	   (9,9,9,60),
+	   (10,10,10,25)
+
+create table C_Credito (
+	ID int primary key not null,
+	IdTipoCliente int not null,
+	IdCliente int not null,
+	Saldo int not null,
+	Abono int not null,
+	FechaPago date not null,
+	LimiteCredito int not null,
+	IdCompras int not null,
+	foreign key (IdCliente) references Inf_Cliente(IdCliente),
+	foreign key (IdCompras) references Compras(IdCompras)
+);
+
+Insert into C_Credito(ID,IdTipoCliente,IdCliente,Saldo,Abono,LimiteCredito,IdCompras)
+values (1,1,1,1,550,55,1),
+       (2,2,2,2,521,25,2),
+	   (3,3,3,3,8000,65,3),
+	   (4,4,4,4,2500,66,4),
+	   (5,5,5,5,5000,12,5),
+	   (6,6,6,6,1200,25,6),
+	   (7,7,7,7,4000,56,7),
+	   (8,8,8,8,5500,23,8),
+	   (9,9,9,9,6000,19,9),
+	   (10,10,10,10,2005,88,10)
+
+
+create table Cliente (
+	IdCliente int primary key not null,
+	Nombre varchar(MAX)not null,
+	Celular int not null,
+	IdTipo int not null,
+	Saldo int not null,
+	Abono int not null,
+	FechaPago date not null,
+	LimiteCredito int not null,
+	IdCompras int not null,
+	foreign key (IdTipo) references C_Cliente(IdTipo),
+	foreign key (IdCompras) references Compras(IdCompras)
+);
+Insert into Cliente(IdCliente,Nombre,Celular,IdTipo,Saldo,Abono,LimiteCredito,IdCompras)
+values (1,'Fernando',76714,550,55,2,1),
+       (2,'Luis',212412,521,25,25,2),
+	   (3,'Katy',35323,8000,65,12,3),
+	   (4,'Daniel',423525,2500,66,2,4),
+	   (5,'Jose',52355,5000,12,1,5),
+	   (6,'Victoria',655325,1200,25,14,6),
+	   (7,'Paola',72636,4000,56,99,7),
+	   (8,'Sandra',826323,5500,23,25,8),
+	   (9,'Pedro',9632,6000,19,21,9),
+	   (10,'Limber',10236,2005,88,44,10)
+
+	   
+create table C_Proveedores (
+	IdTipo int primary key not null,
+	Tipo varchar(MAX)not null
+);
+Insert into C_Proveedores(IdTipo,Tipo)
+values (1,'Pepsi'),
+       (2,'Coca'),
+	   (3,'Leyde'),
+	   (4,'Sula'),
+	   (5,'Ricasula')
+	   
+create table Proveedor (
+	IdProvedor int primary key not null,
+	Nombre varchar(MAX) not null,
+	Correo varchar(MAX) not null,
+	Numero int not null,
+	IdTipo int not null,
+	foreign key (IdTipo) references C_Proveedores(IdTipo)
+);
+
+Insert into Proveedor(IdProvedor,Nombre)
+values (1,'Pepsi'),
+       (2,'Coca'),
+	   (3,'Leyde'),
+	   (4,'Sula'),
+	   (5,'Ricasula')
+
+create table Productos (
+	IdProducto int primary key not null,
+	Nombre varchar(MAX)not null,
+	IdProvedor int not null,
+	PrecioCosto int not null,
+	PrecioVenta int not null,
+	foreign key (IdProvedor) references Proveedor(IdProvedor)
+);
+Insert into Productos(IdProducto,Nombre)
+values (1,'Refrezco'),
+       (2,'Cerveza'),
+	   (3,'Lactos'),
+	   (4,'leches'),
+	   (5,'Churros')
+
+create table T_Producto (
+	IdTipo int primary key not null,
+	TipoProducto varchar(MAX)not null,
+	IdProducto int not null,
+	IdProvedor int not null,
+	foreign key (IdProducto) references Productos(IdProducto),
+	foreign key (IdProvedor) references Proveedor(IdProvedor)
+);
+Insert into T_Producto(IdTipo,TipoProducto,IdProducto,IdProvedor)
+values (1,'Pepsi',1,1),
+       (2,'Coca',2,2),
+	   (3,'Leyde',3,3),
+	   (4,'Sula',4,4),
+	   (5,'Ricasula',5,5)
+
+create table Inventario (
+	ID int primary key not null,
+	IdProducto int not null,
+	IdProvedor int not null,
+	IdTipo int not null,
+	CantidadExhibicion int not null,
+	CantidadBodega int not null,
+	TotalExistencia int not null,
+	foreign key (IdProducto) references Productos(IdProducto),
+	foreign key (IdProvedor) references Proveedor(IdProvedor),
+	foreign key (IdTipo) references T_Producto(IdTipo)
+);
+Insert into Inventario(ID,IdProducto,IdProvedor,IdTipo,CantidadExhibicion,CantidadBodega,TotalExistencia)
+values (1,1,1,1,50,200,250),
+       (2,2,2,2,60,300,360),
+	   (3,3,3,3,65,100,165),
+	   (4,4,4,4,44,200,244),
+	   (5,5,5,5,55,300,355)
+
+create table Cajeros (
+	IdCajero int primary key not null,
+	Nombre varchar(MAX)not null,
+	AperturaCaja int not null,
+	CierreCaja int not null,
+	Fecha date not null,
+	VentasRealizadas int not null,
+	Ingresos int not null
+);
+
+Insert into Cajeros(IdCajero,Nombre,AperturaCaja,CierreCaja,VentasRealizadas)
+values (1,'Juan',1000,3000),
+       (2,'Maria',2000,6000),
+	   (3,'Daniela',3000,8000),
+	   (4,'Juanita',4000,6000),
+	   (5,'Ricardo',5000,8000)
+
+create table Prod_Consumo (
+	ID int primary key not null,
+	IdProducto int not null,
+	Precio int not null,
+	Cantidad int not null,
+	Total int not null,
+	fecha date not null,
+	foreign key (IdProducto) references Productos(IdProducto)
+);
+Insert into Prod_Consumo(ID,IdProducto,Precio,Cantidad)
+values (1,1,150,50),
+       (2,2,200,20),
+	   (3,3,300,15),
+	   (4,4,400,55),
+	   (5,5,500,80)
+
+create table P_Servicios (
+	Id int primary key not null,
+	TipoServicio varchar(MAX)not null,
+	Mes varchar(MAX)not null,
+	Pago int not null,
+	FechaPago date not null
+);
+Insert into P_Servicios(Id,TipoServicio,Mes)
+values (1,'Compra','Junio'),
+       (2,'venta','Julio'),
+	   (3,'venta','Enero'),
+	   (4,'compra','Febrero'),
+	   (5,'venta','Septiembre')
+
+create table Impu_Mercadito (
+	IdImpuesto int primary key not null,
+	Mes varchar(MAX)not null,
+	Monto int not null,
+	FechaPago date not null
+);
+Insert into Impu_Mercadito(IdImpuesto,Mes,Monto)
+values (1,'Junio',15),
+       (2,'julio',15),
+	   (3,'Marzo',15),
+	   (4,'Febrero',10),
+	   (5,'Abril',5)
+      
+      
